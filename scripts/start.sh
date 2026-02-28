@@ -15,7 +15,7 @@ fi
 
 rm -f "$PID_FILE"
 
-export HOSTNAME="${HOSTNAME:-127.0.0.1}"
+export HOSTNAME="${ST_MANAGER_HOST:-127.0.0.1}"
 export PORT="${PORT:-3456}"
 export NODE_ENV="${NODE_ENV:-production}"
 export DATA_ROOT="${DATA_ROOT:-/storage/emulated/0/SillyTavern/default-user}"

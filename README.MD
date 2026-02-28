@@ -46,7 +46,7 @@ REPO_URL=https://github.com/qishiwan16-hub/st-manager-termux-mobile.git \
 BRANCH=main \
 APP_DIR=~/apps/st-manager-termux-mobile \
 DATA_PATH=/storage/emulated/0/SillyTavern/default-user \
-HOSTNAME=127.0.0.1 \
+ST_MANAGER_HOST=127.0.0.1 \
 PORT=3456 \
 bash install-termux.sh
 ```
@@ -56,7 +56,7 @@ bash install-termux.sh
 - `BRANCH`：部署分支，默认 `main`
 - `APP_DIR`：本地部署目录，默认 `~/apps/st-manager-termux-mobile`
 - `DATA_PATH`：SillyTavern 数据根目录
-- `HOSTNAME`：监听地址，建议固定 `127.0.0.1`
+- `ST_MANAGER_HOST`：监听地址，建议固定 `127.0.0.1`
 - `PORT`：服务端口
 
 ## 日常运维
@@ -142,6 +142,8 @@ touch "$P/.rwtest" && rm "$P/.rwtest"
 1. `bash scripts/status.sh`
 2. `bash scripts/healthcheck.sh`
 3. 查看日志：`logs/app-YYYY-MM-DD.log`
+
+说明：健康检查会优先检查 `/api/stats`，若该接口短暂返回 500，会自动回退检查 `/api/config`。
 
 ### 4) 锁屏后进程被系统回收
 

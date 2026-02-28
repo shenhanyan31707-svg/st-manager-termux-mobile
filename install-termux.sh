@@ -5,7 +5,7 @@ REPO_URL="${REPO_URL:-https://github.com/qishiwan16-hub/st-manager-termux-mobile
 BRANCH="${BRANCH:-main}"
 APP_DIR="${APP_DIR:-$HOME/apps/st-manager-termux-mobile}"
 INSTALL_STAGE="${INSTALL_STAGE:-bootstrap}"
-HOST="${HOSTNAME:-127.0.0.1}"
+HOST="${ST_MANAGER_HOST:-127.0.0.1}"
 PORT="${PORT:-3456}"
 DATA_PATH_INPUT="${DATA_PATH:-}"
 DATA_PATH=""
@@ -101,7 +101,7 @@ if [ "$INSTALL_STAGE" = "bootstrap" ]; then
     REPO_URL="$REPO_URL" \
     BRANCH="$BRANCH" \
     APP_DIR="$APP_DIR" \
-    HOSTNAME="$HOST" \
+    ST_MANAGER_HOST="$HOST" \
     PORT="$PORT" \
     DATA_PATH="$DATA_PATH_INPUT" \
     bash "$APP_DIR/install-termux.sh"
@@ -133,9 +133,8 @@ chmod +x scripts/*.sh
 chmod +x termux/runit/st-manager/run termux/runit/st-manager/log/run
 
 echo "[5/6] Start service and run healthcheck"
-HOSTNAME="$HOST" PORT="$PORT" NODE_ENV=production DATA_ROOT="$DATA_PATH" bash scripts/start.sh
-sleep 2
-HOSTNAME="$HOST" PORT="$PORT" bash scripts/healthcheck.sh
+ST_MANAGER_HOST="$HOST" PORT="$PORT" NODE_ENV=production DATA_ROOT="$DATA_PATH" bash scripts/start.sh
+ST_MANAGER_HOST="$HOST" PORT="$PORT" RETRY_COUNT=12 RETRY_DELAY=2 bash scripts/healthcheck.sh
 
 echo "[6/6] Enable runit supervision (optional but recommended)"
 if command -v sv-enable >/dev/null 2>&1; then
