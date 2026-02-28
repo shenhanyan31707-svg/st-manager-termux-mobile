@@ -118,6 +118,11 @@ sv status st-manager-mobile
 原因：在共享存储路径安装 Node 依赖。  
 建议：统一在 `~/apps/...` 运行，或直接使用一键脚本自动部署。
 
+### 1.1) 报错 `Cannot find module '../webpack-runtime.js'`
+
+原因：`.next` 运行产物不完整（缺少 `/.next/server/webpack-runtime.js`）。  
+处理：使用最新版一键脚本重新安装，脚本会自动检测并重建缺失 runtime 文件。
+
 ### 2) 路径测试提示“路径不存在”
 
 先看挂载点：

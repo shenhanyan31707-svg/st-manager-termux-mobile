@@ -10,6 +10,77 @@ PORT="${PORT:-3456}"
 DATA_PATH_INPUT="${DATA_PATH:-}"
 DATA_PATH=""
 
+ensure_webpack_runtime() {
+  local runtime_file="$APP_DIR/.next/server/webpack-runtime.js"
+  if [ -f "$runtime_file" ]; then
+    return 0
+  fi
+
+  echo "WARN: missing $runtime_file, creating fallback runtime"
+  mkdir -p "$APP_DIR/.next/server"
+  cat >"$runtime_file" <<'EOF'
+"use strict";
+const path = require("path");
+const moduleFactories = Object.create(null);
+const moduleCache = Object.create(null);
+const loadedChunks = Object.create(null);
+function __webpack_require__(moduleId) {
+  const id = String(moduleId);
+  if (__webpack_require__.c[id]) return __webpack_require__.c[id].exports;
+  const factory = __webpack_require__.m[id];
+  if (!factory) {
+    const err = new Error(`Cannot find webpack module '${id}'`);
+    err.code = "MODULE_NOT_FOUND";
+    throw err;
+  }
+  const module = (__webpack_require__.c[id] = { exports: {} });
+  factory(module, module.exports, __webpack_require__);
+  return module.exports;
+}
+__webpack_require__.m = moduleFactories;
+__webpack_require__.c = moduleCache;
+__webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+__webpack_require__.d = (exports, definition) => {
+  for (const key in definition) {
+    if (__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+      Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+    }
+  }
+};
+__webpack_require__.r = (exports) => {
+  if (typeof Symbol !== "undefined" && Symbol.toStringTag) {
+    Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+  }
+  Object.defineProperty(exports, "__esModule", { value: true });
+};
+__webpack_require__.n = (module) => {
+  const getter = module && module.__esModule ? () => module.default : () => module;
+  __webpack_require__.d(getter, { a: getter });
+  return getter;
+};
+function registerChunk(chunk) {
+  if (!chunk || typeof chunk !== "object") return;
+  if (chunk.modules && typeof chunk.modules === "object") {
+    for (const id in chunk.modules) __webpack_require__.m[id] = chunk.modules[id];
+  }
+  const ids = Array.isArray(chunk.ids) ? chunk.ids : chunk.id != null ? [chunk.id] : [];
+  for (const id of ids) loadedChunks[id] = true;
+}
+function ensureChunkLoaded(chunkId) {
+  if (loadedChunks[chunkId]) return;
+  const chunkPath = path.join(__dirname, "chunks", `${chunkId}.js`);
+  const chunk = require(chunkPath);
+  registerChunk(chunk);
+}
+__webpack_require__.C = registerChunk;
+__webpack_require__.X = (_unused, chunkIds, execute) => {
+  if (Array.isArray(chunkIds)) for (const chunkId of chunkIds) ensureChunkLoaded(chunkId);
+  return execute();
+};
+module.exports = __webpack_require__;
+EOF
+}
+
 sync_repo_from_github() {
   local backup_dir
   mkdir -p "$(dirname "$APP_DIR")"
@@ -126,6 +197,7 @@ echo "[3/6] Install Node dependencies for mobile runtime"
 cd "$APP_DIR"
 rm -rf node_modules
 npm install --omit=dev
+ensure_webpack_runtime
 
 echo "[4/6] Apply executable permissions"
 chmod +x install-termux.sh
