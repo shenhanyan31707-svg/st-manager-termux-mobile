@@ -41,10 +41,16 @@ cd ~/apps/st-manager-termux-mobile
 bash install-termux.sh
 ```
 
+如果你是从 `Download` 或其他 `/storage/...` 路径直接运行安装脚本，脚本会自动把项目迁移到：
+```bash
+~/apps/st-manager-termux-mobile
+```
+然后从 Termux 私有目录继续安装，避免 `npm install` 在共享存储中的 `symlink EACCES` 报错。
+
 安装脚本会自动完成：
 1. 安装依赖包（`nodejs-lts`、`termux-services`、`curl`、`jq` 等）
 2. 申请共享存储权限（`termux-setup-storage`）
-3. 创建 SillyTavern 数据目录（`characters/worlds/chats`）
+3. 自动选择可写的数据目录（优先内部存储，失败再尝试外置存储）
 4. 重装依赖（`npm install --omit=dev`）
 5. 赋予脚本执行权限
 6. 启动服务并执行健康检查

@@ -6,6 +6,7 @@ LOG_DIR="$APP_DIR/logs"
 HEALTH_SCRIPT="$APP_DIR/scripts/healthcheck.sh"
 ROTATE_SCRIPT="$APP_DIR/scripts/log-rotate.sh"
 LOG_FILE="$LOG_DIR/health-$(date +%F).log"
+SERVICE_NAME="${SERVICE_NAME:-st-manager}"
 
 mkdir -p "$LOG_DIR"
 
@@ -20,11 +21,11 @@ if command -v termux-notification >/dev/null 2>&1; then
   termux-notification \
     --id st-manager-health \
     --title "st-manager healthcheck failed" \
-    --content "Run ~/apps/st-manager/scripts/status.sh"
+    --content "Run $APP_DIR/scripts/status.sh"
 fi
 
-if command -v sv >/dev/null 2>&1 && [ -d "${PREFIX:-}/var/service/st-manager" ]; then
-  sv restart st-manager >>"$LOG_FILE" 2>&1 || true
+if command -v sv >/dev/null 2>&1 && [ -d "${PREFIX:-}/var/service/$SERVICE_NAME" ]; then
+  sv restart "$SERVICE_NAME" >>"$LOG_FILE" 2>&1 || true
 fi
 
 exit 1

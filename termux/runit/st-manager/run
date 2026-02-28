@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
-APP_DIR="$HOME/apps/st-manager"
+APP_DIR="__APP_DIR__"
 cd "$APP_DIR"
 
 mkdir -p "$APP_DIR/logs"
