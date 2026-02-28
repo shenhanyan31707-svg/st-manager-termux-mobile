@@ -1,0 +1,7 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+LOG_DIR="$HOME/apps/st-manager/logs/runit"
+mkdir -p "$LOG_DIR"
+
+exec svlogd -tt "$LOG_DIR"

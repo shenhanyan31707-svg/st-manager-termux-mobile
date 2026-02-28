@@ -1,0 +1,125 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/api/characters/[name]",
+      "regex": "^/api/characters/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPname": "nxtPname"
+      },
+      "namedRegex": "^/api/characters/(?<nxtPname>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/chats/[character]",
+      "regex": "^/api/chats/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPcharacter": "nxtPcharacter"
+      },
+      "namedRegex": "^/api/chats/(?<nxtPcharacter>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/chats/[character]/[file]",
+      "regex": "^/api/chats/([^/]+?)/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPcharacter": "nxtPcharacter",
+        "nxtPfile": "nxtPfile"
+      },
+      "namedRegex": "^/api/chats/(?<nxtPcharacter>[^/]+?)/(?<nxtPfile>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/images/[...path]",
+      "regex": "^/api/images/(.+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPpath": "nxtPpath"
+      },
+      "namedRegex": "^/api/images/(?<nxtPpath>.+?)(?:/)?$"
+    },
+    {
+      "page": "/api/worlds/[name]",
+      "regex": "^/api/worlds/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPname": "nxtPname"
+      },
+      "namedRegex": "^/api/worlds/(?<nxtPname>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/characters",
+      "regex": "^/characters(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/characters(?:/)?$"
+    },
+    {
+      "page": "/chats",
+      "regex": "^/chats(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/chats(?:/)?$"
+    },
+    {
+      "page": "/personas",
+      "regex": "^/personas(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/personas(?:/)?$"
+    },
+    {
+      "page": "/settings",
+      "regex": "^/settings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/settings(?:/)?$"
+    },
+    {
+      "page": "/worlds",
+      "regex": "^/worlds(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/worlds(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments"
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

@@ -1,0 +1,14 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+APP_DIR="$HOME/apps/st-manager"
+cd "$APP_DIR"
+
+mkdir -p "$APP_DIR/logs"
+
+export HOSTNAME="${HOSTNAME:-127.0.0.1}"
+export PORT="${PORT:-3456}"
+export NODE_ENV="${NODE_ENV:-production}"
+export DATA_ROOT="${DATA_ROOT:-/storage/emulated/0/SillyTavern/default-user}"
+
+exec node server.js

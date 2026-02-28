@@ -1,0 +1,23 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/characters/[name]/route": "app/api/characters/[name]/route.js",
+  "/api/characters/route": "app/api/characters/route.js",
+  "/api/chats/[character]/[file]/route": "app/api/chats/[character]/[file]/route.js",
+  "/api/chats/route": "app/api/chats/route.js",
+  "/api/chats/[character]/route": "app/api/chats/[character]/route.js",
+  "/api/config/route": "app/api/config/route.js",
+  "/api/config/test/route": "app/api/config/test/route.js",
+  "/api/images/[...path]/route": "app/api/images/[...path]/route.js",
+  "/api/personas/route": "app/api/personas/route.js",
+  "/api/stats/route": "app/api/stats/route.js",
+  "/api/worlds/[name]/route": "app/api/worlds/[name]/route.js",
+  "/api/worlds/bindings/route": "app/api/worlds/bindings/route.js",
+  "/api/worlds/rename/route": "app/api/worlds/rename/route.js",
+  "/api/worlds/route": "app/api/worlds/route.js",
+  "/characters/page": "app/characters/page.js",
+  "/chats/page": "app/chats/page.js",
+  "/page": "app/page.js",
+  "/personas/page": "app/personas/page.js",
+  "/worlds/page": "app/worlds/page.js",
+  "/settings/page": "app/settings/page.js"
+}

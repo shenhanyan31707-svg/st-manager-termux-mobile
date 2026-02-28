@@ -1,0 +1,23 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/characters/[name]/route": "/api/characters/[name]",
+  "/api/characters/route": "/api/characters",
+  "/api/chats/[character]/[file]/route": "/api/chats/[character]/[file]",
+  "/api/chats/route": "/api/chats",
+  "/api/chats/[character]/route": "/api/chats/[character]",
+  "/api/config/route": "/api/config",
+  "/api/config/test/route": "/api/config/test",
+  "/api/images/[...path]/route": "/api/images/[...path]",
+  "/api/personas/route": "/api/personas",
+  "/api/stats/route": "/api/stats",
+  "/api/worlds/[name]/route": "/api/worlds/[name]",
+  "/api/worlds/bindings/route": "/api/worlds/bindings",
+  "/api/worlds/rename/route": "/api/worlds/rename",
+  "/api/worlds/route": "/api/worlds",
+  "/characters/page": "/characters",
+  "/chats/page": "/chats",
+  "/page": "/",
+  "/personas/page": "/personas",
+  "/worlds/page": "/worlds",
+  "/settings/page": "/settings"
+}

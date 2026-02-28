@@ -1,0 +1,52 @@
+{
+  "name": "st-manager-termux-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "HOSTNAME=127.0.0.1 PORT=3456 NODE_ENV=production node server.js",
+    "termux:install": "bash install-termux.sh",
+    "termux:bootstrap": "bash scripts/termux-bootstrap.sh",
+    "termux:start": "bash scripts/start.sh",
+    "termux:stop": "bash scripts/stop.sh",
+    "termux:status": "bash scripts/status.sh",
+    "termux:health": "bash scripts/healthcheck.sh",
+    "termux:log-rotate": "bash scripts/log-rotate.sh",
+    "termux:daily-health": "bash scripts/daily-health.sh",
+    "termux:install-service": "bash scripts/install-runit-service.sh"
+  },
+  "dependencies": {
+    "@radix-ui/react-alert-dialog": "^1.1.4",
+    "@radix-ui/react-avatar": "^1.1.2",
+    "@radix-ui/react-dialog": "^1.1.4",
+    "@radix-ui/react-dropdown-menu": "^2.1.4",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-scroll-area": "^1.2.2",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-separator": "^1.1.1",
+    "@radix-ui/react-slot": "^1.1.1",
+    "@radix-ui/react-tabs": "^1.1.2",
+    "@radix-ui/react-tooltip": "^1.1.6",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "next": "^15.1.0",
+    "next-themes": "^0.4.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sonner": "^1.7.1",
+    "swr": "^2.2.5",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.24",
+    "eslint": "^9.16.0",
+    "eslint-config-next": "^15.1.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.7.2"
+  }
+}
