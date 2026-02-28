@@ -9,6 +9,55 @@ HOST="${ST_MANAGER_HOST:-127.0.0.1}"
 PORT="${PORT:-3456}"
 DATA_PATH_INPUT="${DATA_PATH:-}"
 DATA_PATH=""
+FORCE_NPM_INSTALL="${FORCE_NPM_INSTALL:-0}"
+SHARED_STORAGE_READY=0
+
+dependency_signature() {
+  local hash_cmd
+  local node_ver
+  local npm_ver
+  node_ver="$(node -v 2>/dev/null || echo unknown-node)"
+  npm_ver="$(npm -v 2>/dev/null || echo unknown-npm)"
+
+  if command -v sha256sum >/dev/null 2>&1; then
+    hash_cmd="sha256sum"
+  elif command -v shasum >/dev/null 2>&1; then
+    hash_cmd="shasum -a 256"
+  else
+    hash_cmd="md5sum"
+  fi
+
+  {
+    echo "node=$node_ver"
+    echo "npm=$npm_ver"
+    [ -f "$APP_DIR/package.json" ] && cat "$APP_DIR/package.json"
+    [ -f "$APP_DIR/package-lock.json" ] && cat "$APP_DIR/package-lock.json"
+  } | eval "$hash_cmd" | awk '{print $1}'
+}
+
+install_node_dependencies() {
+  local stamp_file="$APP_DIR/.deps-installed.sig"
+  local sig_current
+  local sig_saved=""
+  local npm_cmd="npm install --omit=dev"
+
+  sig_current="$(dependency_signature)"
+  [ -f "$stamp_file" ] && sig_saved="$(cat "$stamp_file" 2>/dev/null || true)"
+
+  if [ "$FORCE_NPM_INSTALL" != "1" ] && [ -d "$APP_DIR/node_modules" ] && [ "$sig_current" = "$sig_saved" ]; then
+    echo "Dependencies unchanged, skipping npm install."
+    return 0
+  fi
+
+  if [ -f "$APP_DIR/package-lock.json" ]; then
+    npm_cmd="npm ci --omit=dev"
+  fi
+
+  echo "Installing dependencies with: $npm_cmd"
+  cd "$APP_DIR"
+  eval "$npm_cmd"
+  echo "$sig_current" >"$stamp_file"
+}
 
 ensure_webpack_runtime() {
   local runtime_file="$APP_DIR/.next/server/webpack-runtime.js"
@@ -124,15 +173,41 @@ try_prepare_data_path() {
   return 0
 }
 
+setup_shared_storage_permission() {
+  [ "$SHARED_STORAGE_READY" = "1" ] && return 0
+  SHARED_STORAGE_READY=1
+  if command -v termux-setup-storage >/dev/null 2>&1; then
+    echo "Requesting shared storage permission..."
+    termux-setup-storage || true
+  fi
+}
+
 resolve_data_path() {
   if [ -n "$DATA_PATH_INPUT" ]; then
     if try_prepare_data_path "$DATA_PATH_INPUT"; then
       return 0
     fi
+    if [[ "$DATA_PATH_INPUT" == /storage/* ]]; then
+      setup_shared_storage_permission
+      if try_prepare_data_path "$DATA_PATH_INPUT"; then
+        return 0
+      fi
+    fi
     echo "ERROR: DATA_PATH is not accessible: $DATA_PATH_INPUT"
-    echo "Tip: use /storage/emulated/0/SillyTavern/default-user"
+    echo "Tip: use either $HOME/.st-manager/data/default-user or /storage/emulated/0/SillyTavern/default-user"
     exit 1
   fi
+
+  for candidate in \
+    "$HOME/.st-manager/data/default-user" \
+    "$HOME/.local/share/SillyTavern/default-user" \
+    "/data/data/com.termux/files/home/.st-manager/data/default-user"; do
+    if try_prepare_data_path "$candidate"; then
+      return 0
+    fi
+  done
+
+  setup_shared_storage_permission
 
   for candidate in \
     "/storage/emulated/0/SillyTavern/default-user" \
@@ -154,7 +229,7 @@ resolve_data_path() {
   done
 
   echo "ERROR: unable to find writable SillyTavern data path"
-  echo "Set it manually: DATA_PATH=/storage/emulated/0/SillyTavern/default-user bash install-termux.sh"
+  echo "Set it manually: DATA_PATH=$HOME/.st-manager/data/default-user bash install-termux.sh"
   exit 1
 }
 
@@ -178,10 +253,8 @@ if [ "$INSTALL_STAGE" = "bootstrap" ]; then
     bash "$APP_DIR/install-termux.sh"
 fi
 
-echo "[1/6] Setup Android shared storage permission"
-if command -v termux-setup-storage >/dev/null 2>&1; then
-  termux-setup-storage || true
-fi
+echo "[1/6] Prepare storage access (lazy mode)"
+echo "Shared storage permission will only be requested if /storage path is used."
 
 echo "[2/6] Resolve writable data path"
 resolve_data_path
@@ -194,9 +267,7 @@ cat >"$APP_DIR/app-config.json" <<EOF
 EOF
 
 echo "[3/6] Install Node dependencies for mobile runtime"
-cd "$APP_DIR"
-rm -rf node_modules
-npm install --omit=dev
+install_node_dependencies
 ensure_webpack_runtime
 
 echo "[4/6] Apply executable permissions"
