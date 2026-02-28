@@ -11,6 +11,33 @@ DATA_PATH_INPUT="${DATA_PATH:-}"
 DATA_PATH=""
 FORCE_NPM_INSTALL="${FORCE_NPM_INSTALL:-0}"
 SHARED_STORAGE_READY=0
+NPM_HEARTBEAT_SECONDS="${NPM_HEARTBEAT_SECONDS:-15}"
+NPM_CACHE_DIR="${NPM_CACHE_DIR:-$HOME/.npm}"
+
+run_with_heartbeat() {
+  local start_ts
+  local pid
+  local rc
+  start_ts="$(date +%s)"
+
+  "$@" &
+  pid=$!
+
+  while kill -0 "$pid" 2>/dev/null; do
+    sleep "$NPM_HEARTBEAT_SECONDS"
+    if ! kill -0 "$pid" 2>/dev/null; then
+      break
+    fi
+    local now_ts elapsed
+    now_ts="$(date +%s)"
+    elapsed=$((now_ts - start_ts))
+    echo "npm install in progress... ${elapsed}s elapsed"
+  done
+
+  wait "$pid"
+  rc=$?
+  return "$rc"
+}
 
 dependency_signature() {
   local hash_cmd=""
@@ -49,6 +76,13 @@ install_node_dependencies() {
   local sig_current
   local sig_saved=""
   local use_npm_ci=0
+  local npm_base_args=(
+    "--omit=dev"
+    "--no-audit"
+    "--fund=false"
+    "--prefer-offline"
+    "--progress=false"
+  )
 
   sig_current="$(dependency_signature)"
   [ -f "$stamp_file" ] && sig_saved="$(cat "$stamp_file" 2>/dev/null || true)"
@@ -62,17 +96,23 @@ install_node_dependencies() {
     use_npm_ci=1
   fi
 
+  mkdir -p "$NPM_CACHE_DIR"
+  export npm_config_cache="$NPM_CACHE_DIR"
+  export npm_config_fetch_retries="${NPM_FETCH_RETRIES:-4}"
+  export npm_config_fetch_retry_mintimeout="${NPM_FETCH_RETRY_MINTIMEOUT:-10000}"
+  export npm_config_fetch_retry_maxtimeout="${NPM_FETCH_RETRY_MAXTIMEOUT:-120000}"
+
   if [ "$use_npm_ci" = "1" ]; then
-    echo "Installing dependencies with: npm ci --omit=dev"
+    echo "Installing dependencies with: npm ci ${npm_base_args[*]}"
   else
-    echo "Installing dependencies with: npm install --omit=dev"
+    echo "Installing dependencies with: npm install ${npm_base_args[*]}"
   fi
 
   cd "$APP_DIR"
   if [ "$use_npm_ci" = "1" ]; then
-    npm ci --omit=dev
+    run_with_heartbeat npm ci "${npm_base_args[@]}"
   else
-    npm install --omit=dev
+    run_with_heartbeat npm install "${npm_base_args[@]}"
   fi
   echo "$sig_current" >"$stamp_file"
 }
@@ -180,6 +220,16 @@ sync_repo_from_github() {
       mv "$APP_DIR" "$backup_dir"
       echo "Local repo update failed, backup moved to: $backup_dir"
       git clone --depth 1 --branch "$BRANCH" "$REPO_URL" "$APP_DIR"
+      if [ -d "$backup_dir/node_modules" ] && [ ! -d "$APP_DIR/node_modules" ]; then
+        echo "Reusing cached node_modules from backup directory..."
+        mv "$backup_dir/node_modules" "$APP_DIR/node_modules" 2>/dev/null || cp -a "$backup_dir/node_modules" "$APP_DIR/node_modules" || true
+      fi
+      if [ -f "$backup_dir/.deps-installed.sig" ] && [ ! -f "$APP_DIR/.deps-installed.sig" ]; then
+        cp -a "$backup_dir/.deps-installed.sig" "$APP_DIR/.deps-installed.sig" || true
+      fi
+      if [ -f "$backup_dir/package-lock.json" ] && [ ! -f "$APP_DIR/package-lock.json" ]; then
+        cp -a "$backup_dir/package-lock.json" "$APP_DIR/package-lock.json" || true
+      fi
     fi
     return 0
   fi
